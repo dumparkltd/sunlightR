@@ -35,28 +35,22 @@ get_min_altitude_for_azimuth <- function(lon, lat, azimuth, dem, resolution) {
   min_altitude = 0
   
   transect = get_transect(lon, lat, azimuth, dem, resolution)
-  plot(transect$elev)
+  # plot(transect$elev)
   
   elev_max_dem = maxValue(dem)
   d_vert_max = elev_max_dem - elevation
   
   for (i in 1:nrow(transect)) {
     elev_i = transect[i,]$elev
-    print(i)
-    print(elev_i)
     if (!is.na(elev_i)) {
       d_vert = elev_i - elevation
       if (d_vert > 0) {
         d_horiz = (i - 1) * d_transect
         altitude_i = rad2deg(atan(d_vert/d_horiz))
-        print(d_horiz)
-        print(d_vert)
-        print(altitude_i)
         if (altitude_i > min_altitude) {
           min_altitude <- altitude_i
         }
         altitude_max = rad2deg(atan(d_vert_max/d_horiz))
-        print(altitude_max)
         if (altitude_max < min_altitude) {
           break
         }
