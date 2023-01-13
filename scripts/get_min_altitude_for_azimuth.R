@@ -45,17 +45,20 @@ get_min_altitude_for_azimuth <- function(lon, lat, azimuth, dem, resolution) {
     if (!is.na(elev_i)) {
       d_vert = elev_i - elevation
       if (d_vert > 0) {
-        d_horiz = (i - 1) * d_transect
+        d_horiz = (i - 1) * resolution
         altitude_i = rad2deg(atan(d_vert/d_horiz))
         if (altitude_i > min_altitude) {
           min_altitude <- altitude_i
-        }
-        altitude_max = rad2deg(atan(d_vert_max/d_horiz))
-        if (altitude_max < min_altitude) {
-          break
+        } else {
+          # exit loop if higher altitude is globally no longer achievable
+          altitude_max = rad2deg(atan(d_vert_max/d_horiz))
+          if (altitude_max < min_altitude) {
+            break
+          }
         }
       }
     }
+
   }
   return (min_altitude)
 }
