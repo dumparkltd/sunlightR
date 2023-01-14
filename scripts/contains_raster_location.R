@@ -3,7 +3,7 @@ library(raster)
 
 # check if a lat/lon point is contained within a raster layer
 
-contains_raster_location <- function(lon, lat, r) {
+contains_raster_location <- function(lon, lat, raster) {
   # project
   ll = data.frame(x=lon, y=lat)
   coordinates(ll) <- c("x", "y")

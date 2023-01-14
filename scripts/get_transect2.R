@@ -16,23 +16,19 @@
 # - transect (matrix of heights for locations)
 
 library(sp)
-library(sf)
 library(raster)
 library(geosphere)
 
 source("scripts/contains_raster_location.R")
-source("scripts/contains_polygon_location.R")
 
-get_transect <- function(lon, lat, azimuth, dem, resolution) {
-  dem_extent <- st_transform(st_as_sfc(st_bbox(dem)), crs=4326)
-  
+get_transect_2 <- function(lon, lat, azimuth, dem, resolution) {
   point = destPoint(c(lon, lat), b=azimuth, d=0)
   
   lats <- c()
   lons <- c()
   
   # determine points along azimuth
-  while (contains_polygon_location(point[1], point[2], dem_extent)) {
+  while (contains_raster_location(point[1], point[2], dem)) {
     lon_current = point[1]
     lat_current = point[2]
     
