@@ -15,30 +15,35 @@
 # Result
 # - transect (matrix of heights for locations)
 
-library(sp)
 library(sf)
+library(sp)
 library(raster) 
 library(geosphere)
 
-get_transect2 <- function(lon, lat, azimuth, dem) {
-  # print(lon)
-  # print(lat)
-  lats <- c(lat)
-  lons <- c(lon)
-  # prepare points
-  latlons = data.frame(lon = lons, lat = lats)
-  coordinates(latlons) <- c("lon", "lat")
-  proj4string(latlons) <- CRS("+proj=longlat")
-  point = destPoint(latlons, b=0, d=0)
-  dp <- destPoint(latlons, b=azimuth, max(nrow(dem)*res(dem)[1], ncol(dem)*res(dem)[1]))
-  line <- Line(cbind(c(point[1], dp[1]), c(point[2], dp[2])))
+get_transect2 <- function(xy_origin, azimuth, dem) {
+  # get target point, outside of dem
+  point_origin <- st_point(c(xy_origin[1], xy_origin[2]))
+  sfc = st_sfc(point_origin, crs = crs(dem, asText=TRUE))
+  ll_origin <- st_transform(sfc, crs = "+proj=longlat")
+
+  dem_length <- max(nrow(dem)*res(dem)[1], ncol(dem)*res(dem)[1])
+  ll_target <- destPoint(c(ll_origin[[1]]), b=azimuth, dem_length)
+  ll_target_point <- st_point(c(ll_target[1], ll_target[2]))
+  xy_target <- st_transform(
+    st_sfc(ll_target_point, crs = "+proj=longlat"),
+    crs = crs(dem, asText=TRUE)
+  )
+  # sp::Line, sp::Lines, sp:: SpatialLines, sp::crs
+  line <- Line(cbind(c(point_origin[1], xy_target[[1]][1]), c(point_origin[2], xy_target[[1]][2])))
   sl <- SpatialLines(list(Lines(line, ID="a")))
-  crs(sl) <- CRS("+proj=longlat")
+  crs(sl) <- crs(dem)
+  
   # extract elevations from dem for points
-  elevations <- extract(dem, spTransform(sl, CRS(projection(dem))), cellnumbers=TRUE)
+  # raster::extract
+  elevations <- extract(dem, sl, cellnumbers=TRUE)
   
   return (data.frame(
     cellNo = elevations[[1]][,1],
     elev = elevations[[1]][,2]
   ))
-}
+} 

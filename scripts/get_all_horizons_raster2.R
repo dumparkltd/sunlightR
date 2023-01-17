@@ -21,6 +21,7 @@ get_all_horizons2 <- function (dem, settings) {
   date_longest_S = as.Date("2023-12-21")
   # get azimuth boundaries
   if (lat > 0) {
+    # https://rdrr.io/cran/suncalc/man/getSunlightTimes.html
     sltimes <- getSunlightTimes(
       date = date_longest_N,
       lat = lat,
@@ -40,6 +41,7 @@ get_all_horizons2 <- function (dem, settings) {
   # in radians 
   # "sun azimuth in radians (direction along the horizon, measured 
   # from south to west), e.g. 0 is south and Math.PI * 3/4 is northwest"
+  # https://rdrr.io/cran/suncalc/man/getSunlightPosition.html
   slp_sunrise <- getSunlightPosition(
     date= sltimes$sunrise,
     lat = lat,
@@ -53,7 +55,7 @@ get_all_horizons2 <- function (dem, settings) {
     keep = c( "azimuth")
   )
   # convert to degrees, North to East, round up/down
-  # WARNING should only work on N hemisphere
+  # WARNING not tested for S hemisphere
   azimuth_min <- floor(rad2deg(slp_sunrise$azimuth)+180)
   azimuth_max <- ceiling(rad2deg(slp_sunset$azimuth)+180)
   
@@ -67,13 +69,13 @@ get_all_horizons2 <- function (dem, settings) {
   altitudes <- c()
   for (i in seq(azimuth_min, azimuth_max, by = res_azimuths)) {
     print(paste(Sys.time(), ' - ', 'calculating altitudes for azimuth: ', i, sep=""))
-    writeRaster(
-      get_altitudes_for_azimuth(dem, i, settings),
-      filename=paste("azimuth-", i, ".tif", sep=""),
-      format="GTiff",
-      overwrite=TRUE
-    )
-    # altitudes = append(altitudes, get_altitudes_for_azimuth(dem, i, settings))
+    # writeRaster(
+    #   get_altitudes_for_azimuth(dem, i),
+    #   filename=paste("azimuth-", i, ".tif", sep=""),
+    #   format="GTiff",
+    #   overwrite=TRUE
+    # )
+    altitudes = append(altitudes, get_altitudes_for_azimuth(dem, i))
     azimuths = append(azimuths, i)
   }
   

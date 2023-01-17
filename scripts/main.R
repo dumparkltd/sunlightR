@@ -1,7 +1,7 @@
-library(sp)
-library(raster)
-
-source("scripts/is_shade.R")
+# library(sp)
+# library(raster)
+# 
+# source("scripts/is_shade.R")
 # # source("scripts/get_min_altitude_for_azimuth.R")
 # # source("scripts/get_transect.R")
 # 
@@ -42,38 +42,45 @@ source("scripts/is_shade.R")
 # 
 # horizons_raster
 
-settings <- list(
-  resolution_azimuths = 10, # horizontal resolution of azimuth (in degrees)
-)
-time <- '2023-06-21 10:00:00'
-# time <- '2023-12-21 11:00:00'
-datetime <- as.POSIXct(time,  tz = "UTC")
+# settings <- list(
+#   resolution_azimuths = 10, # horizontal resolution of azimuth (in degrees)
+# )
+# time <- '2023-06-21 10:00:00'
+# # time <- '2023-12-21 11:00:00'
+# datetime <- as.POSIXct(time,  tz = "UTC")
+# 
+# sun_position <- getSunlightPosition(
+#   date= datetime,
+#   lat = lat,
+#   lon = lon,
+#   keep = c( "azimuth", "altitude")
+# )
+# azimuth = round(rad2deg(sun_position$azimuth)+180)
+# altitude = rad2deg(sun_position$altitude)
+# 
+# azimuth = round(azimuth / settings$resolution_azimuths) * settings$resolution_azimuths
+# 
+# file = paste('azimuth-',azimuth,'.tif', sep="")
+# dem <- raster(file)
+# 
+# if (altitude > maxValue(dem)) {
+#   shades <- raster(
+#     nrows = nrow(dem),
+#     ncols = ncol(dem),
+#     ext = extent(dem),
+#     res = res(dem),
+#     crs = crs(dem),
+#     vals = 0
+#   )
+# } else {
+#   shades <- is_shade(altitude, dem)
+# }
+# 
+# plot(shades)
 
-sun_position <- getSunlightPosition(
-  date= datetime,
-  lat = lat,
-  lon = lon,
-  keep = c( "azimuth", "altitude")
-)
-azimuth = round(rad2deg(sun_position$azimuth)+180)
-altitude = rad2deg(sun_position$altitude)
-
-azimuth = round(azimuth / settings$resolution_azimuths) * settings$resolution_azimuths
-
-file = paste('azimuth-',azimuth,'.tif', sep="")
-dem <- raster(file)
-
-if (altitude > maxValue(dem)) {
-  shades <- raster(
-    nrows = nrow(dem),
-    ncols = ncol(dem),
-    ext = extent(dem),
-    res = res(dem),
-    crs = crs(dem),
-    vals = 0
-  )
-} else {
-  shades <- is_shade(altitude, dem)
-}
-
-plot(shades)
+source("scripts/get_altitudes_for_azimuth_doP.R")
+filename <- paste("~/git/inrae/sunlightR/dem-100m.tif")
+Sys.time()
+alt_90_100m <- get_altitudes_for_azimuth_doP(filename, 90)
+Sys.time()
+plot(alt_90_250m)
