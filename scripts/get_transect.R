@@ -14,7 +14,7 @@
 #
 # Result
 # - transect (matrix of heights for locations)
-
+ 
 library(sp)
 library(sf)
 library(raster)
@@ -23,8 +23,7 @@ library(geosphere)
 source("scripts/contains_raster_location.R")
 source("scripts/contains_polygon_location.R")
 
-get_transect <- function(lon, lat, azimuth, dem, resolution) {
-  dem_extent <- st_transform(st_as_sfc(st_bbox(dem)), crs=4326)
+get_transect <- function(lon, lat, azimuth, dem, dem_extent, resolution) {
   
   point = destPoint(c(lon, lat), b=azimuth, d=0)
   
@@ -33,6 +32,12 @@ get_transect <- function(lon, lat, azimuth, dem, resolution) {
   
   # determine points along azimuth
   while (contains_polygon_location(point[1], point[2], dem_extent)) {
+    
+    # calculate new point
+    # https://rspatial.org/raster/sphere/3-direction.html#point-at-distance-and-bearing
+    point = destPoint(point, b=azimuth, d=resolution)
+    
+    
     lon_current = point[1]
     lat_current = point[2]
     
@@ -40,9 +45,6 @@ get_transect <- function(lon, lat, azimuth, dem, resolution) {
     lons = append(lons, lon_current)
     lats = append(lats, lat_current)
     
-    # calculate new point
-    # https://rspatial.org/raster/sphere/3-direction.html#point-at-distance-and-bearing
-    point = destPoint(point, b=azimuth, d=resolution)
   }
   
   # prepare points
